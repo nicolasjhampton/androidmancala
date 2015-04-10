@@ -1,15 +1,10 @@
 package com.staggarlee.mancala.ui;
 
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
 import android.os.SystemClock;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -62,6 +57,8 @@ public class GameActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
         ButterKnife.inject(this);
+
+
 
         Intent intent = getIntent();
 
@@ -165,42 +162,54 @@ public class GameActivity extends ActionBarActivity {
     // outputs the string value of each mBead value in the cups to the display
     // also inserts a one second wait between processes
     public void updateDisplay() {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mCupText0.setText(String.valueOf(game.getBoard().getCup(0).getBeads()));
+                mCupText1.setText(String.valueOf(game.getBoard().getCup(1).getBeads()));
+                mCupText2.setText(String.valueOf(game.getBoard().getCup(2).getBeads()));
+                mCupText3.setText(String.valueOf(game.getBoard().getCup(3).getBeads()));
+                mCupText4.setText(String.valueOf(game.getBoard().getCup(4).getBeads()));
+                mCupText5.setText(String.valueOf(game.getBoard().getCup(5).getBeads()));
+                mCupText6.setText(String.valueOf(game.getBoard().getCup(6).getBeads()));
+                mCupText7.setText(String.valueOf(game.getBoard().getCup(7).getBeads()));
+                mCupText8.setText(String.valueOf(game.getBoard().getCup(8).getBeads()));
+                mCupText9.setText(String.valueOf(game.getBoard().getCup(9).getBeads()));
+                mCupText10.setText(String.valueOf(game.getBoard().getCup(10).getBeads()));
+                mCupText11.setText(String.valueOf(game.getBoard().getCup(11).getBeads()));
+                mCupText12.setText(String.valueOf(game.getBoard().getCup(12).getBeads()));
+                mCupText13.setText(String.valueOf(game.getBoard().getCup(13).getBeads()));
+            }
+        });
 
-        mCupText0.setText(String.valueOf(game.getBoard().getCup(0).getBeads()));
-        mCupText1.setText(String.valueOf(game.getBoard().getCup(1).getBeads()));
-        mCupText2.setText(String.valueOf(game.getBoard().getCup(2).getBeads()));
-        mCupText3.setText(String.valueOf(game.getBoard().getCup(3).getBeads()));
-        mCupText4.setText(String.valueOf(game.getBoard().getCup(4).getBeads()));
-        mCupText5.setText(String.valueOf(game.getBoard().getCup(5).getBeads()));
-        mCupText6.setText(String.valueOf(game.getBoard().getCup(6).getBeads()));
-        mCupText7.setText(String.valueOf(game.getBoard().getCup(7).getBeads()));
-        mCupText8.setText(String.valueOf(game.getBoard().getCup(8).getBeads()));
-        mCupText9.setText(String.valueOf(game.getBoard().getCup(9).getBeads()));
-        mCupText10.setText(String.valueOf(game.getBoard().getCup(10).getBeads()));
-        mCupText11.setText(String.valueOf(game.getBoard().getCup(11).getBeads()));
-        mCupText12.setText(String.valueOf(game.getBoard().getCup(12).getBeads()));
-        mCupText13.setText(String.valueOf(game.getBoard().getCup(13).getBeads()));
         SystemClock.sleep(1000);
     }
 
     // Combines steps 1 through 4 in Mancala.class into a single turn
-    public void makeMove(int index)  {
+    public void makeMove(final int index)  {
         //    grabs the chosen cups beads
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    game.chooseCup(index);
+                    updateDisplay();
+                    do {
+                        game.getNextCup();
+                        game.settleCup();
+                        updateDisplay();
+                        // until all the beads are gone
+                    } while (game.getBeadsInHand() > 0);
+                    game.endTurn();
+                    updateDisplay();
+                } catch (InterruptedException e) {
+                    Toast.makeText(GameActivity.this,"A Process Was Interrupted", Toast.LENGTH_LONG).show();
+                }
 
-        try {
-            game.chooseCup(index);
-            updateDisplay();
-            do {
-                game.getNextCup();
-                game.settleCup();
-                updateDisplay();
-                // until all the beads are gone
-            } while (game.getBeadsInHand() > 0);
-            game.endTurn();
-            updateDisplay();
-        } catch (InterruptedException e) {
-            Toast.makeText(GameActivity.this,"A Process Was Interrupted", Toast.LENGTH_LONG);
-        }
+            }
+        });
+        thread.start();
+
 
     }
 
