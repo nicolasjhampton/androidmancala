@@ -36,6 +36,6 @@ public class CupBoard {
 
     // get the cup on the board
     public Cup getCup(int index) {
-        return mCupBoard.get(index);
+        return getBoard().get(index);
     }
 }

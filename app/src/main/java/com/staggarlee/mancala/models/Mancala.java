@@ -4,6 +4,8 @@ package com.staggarlee.mancala.models;
  * Created by nicolas on 4/9/15.
  */
 
+import com.staggarlee.mancala.ui.GameActivity;
+
 import java.util.List;
 import java.util.List;
 
@@ -43,34 +45,36 @@ public class Mancala {
         mPlayer = !mPlayer;
     }
 
-    // prints the current status of the board
-    // this should be brought up into a view class later
-    public void printResult() throws InterruptedException {
+
+    // Depreciated after updateDisplay in GameActivity
+    /* public void printResult() throws InterruptedException {
         // clears the previous move from the screen
         System.out.print("\033[H\033[2J");
         // print the new move
         System.out.printf("%s", getBoard().getBoard());
         // wait a second
         Thread.sleep(1000);
-    }
+    } */
 
     // gameplay methods
 
     // Step 1: method to choose the first cup to take your turn
     public void chooseCup(int index) {
-
-        if(mPlayer) {
+        //index limit depreciated after android release
+        /*if(mPlayer) {
             // Store the current index
             mIndex = index;
         } else {
             mIndex = index + 7;
-        }
+        } */
+
         // get the cup
         mCup = mBoard.getCup(mIndex);
         // take the beads from the current cup
-        if(!mCup.isHome()) {
+        //Home check depreciated after android release
+        // if(!mCup.isHome()) {
             mBeads = mCup.takeBeads();
-        }
+        //}
     }
 
     // Step 2: method to move to and capture the next cup
@@ -103,7 +107,7 @@ public class Mancala {
                 // take any beads in the cup if it's the last cup
                 // and continue
                 mBeads += mCup.takeBeads();
-                printResult();
+                // printResult();
             } else {
 
                 if(mBeads > 0) {
@@ -112,7 +116,7 @@ public class Mancala {
                     // and put it in the cup
                     mCup.addBeads(1);
                 }
-                printResult();
+                // printResult();
             }
         }
     }
@@ -151,7 +155,7 @@ public class Mancala {
             mCup = mBoard.getCup(mIndex);
             // put them in the cup we ended on
             mCup.addBeads(beads);
-            printResult();
+            // GameActivity.updateDisplay();
         }
         switchPlayer();
     }

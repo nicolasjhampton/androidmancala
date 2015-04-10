@@ -33,7 +33,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="START GAME"
-        android:id="@+id/button"
+        android:id="@+id/startButton"
         android:layout_marginRight="79dp"
         android:layout_marginEnd="79dp"
         android:layout_marginTop="111dp"
