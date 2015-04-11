@@ -1,6 +1,7 @@
 package com.staggarlee.mancala.ui;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.SystemClock;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -47,9 +48,7 @@ public class GameActivity extends ActionBarActivity {
     @InjectView(R.id.cupButton13) ImageButton mCupButton13;
 
     Mancala game = new Mancala();
-    String mStartCup;
-    String mPlayer;
-    int mIndex;
+    Thread thread;
 
 
     @Override
@@ -58,95 +57,95 @@ public class GameActivity extends ActionBarActivity {
         setContentView(R.layout.activity_game);
         ButterKnife.inject(this);
 
+        thread = new Thread();
+
+        togglePlayer();
 
 
-        Intent intent = getIntent();
 
+            mCupButton1.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                        makeMove(1);
+                }
+            });
 
+            mCupButton2.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                        makeMove(2);
+                }
+            });
 
-        mCupButton1.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                makeMove(1);
-            }
-        });
+            mCupButton3.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    makeMove(3);
+                }
+            });
 
-        mCupButton2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                makeMove(2);
-            }
-        });
+            mCupButton4.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    makeMove(4);
+                }
+            });
 
-        mCupButton3.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-               makeMove(3);
-            }
-        });
+            mCupButton5.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    makeMove(5);
+                }
+            });
 
-        mCupButton4.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                makeMove(4);
-            }
-        });
+            mCupButton6.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    makeMove(6);
+                }
+            });
 
-        mCupButton5.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-               makeMove(5);
-            }
-        });
+            mCupButton8.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    makeMove(8);
+                }
+            });
 
-        mCupButton6.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                makeMove(6);
-            }
-        });
+            mCupButton9.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    makeMove(9);
+                }
+            });
 
-        mCupButton8.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                makeMove(8);
-            }
-        });
+            mCupButton10.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    makeMove(10);
+                }
+            });
 
-        mCupButton9.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                makeMove(9);
-            }
-        });
+            mCupButton11.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    makeMove(11);
+                }
+            });
 
-        mCupButton10.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                makeMove(10);
-            }
-        });
+            mCupButton12.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    makeMove(12);
+                }
+            });
 
-        mCupButton11.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-               makeMove(11);
-            }
-        });
-
-        mCupButton12.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-               makeMove(12);
-            }
-        });
-
-        mCupButton13.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-               makeMove(13);
-            }
-        });
+            mCupButton13.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    makeMove(13);
+                }
+            });
 
 
 
@@ -187,29 +186,73 @@ public class GameActivity extends ActionBarActivity {
 
     // Combines steps 1 through 4 in Mancala.class into a single turn
     public void makeMove(final int index)  {
-        //    grabs the chosen cups beads
-        Thread thread = new Thread(new Runnable() {
+        // If a move is not currently in progress and their are beads in the cup
+        if(!thread.isAlive() && game.getBoard().getCup(index).getBeads() != 0) {
+            //    grabs the chosen cups beads
+            thread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        game.chooseCup(index);
+                        updateDisplay();
+                        do {
+                            game.getNextCup();
+                            game.settleCup();
+                            updateDisplay();
+                            // until all the beads are gone
+                        } while (game.getBeadsInHand() > 0);
+                        game.endTurn();
+                        updateDisplay();
+                        togglePlayer();
+                    } catch (InterruptedException e) {
+                        Toast.makeText(GameActivity.this, "A Process Was Interrupted", Toast.LENGTH_LONG).show();
+                    }
+
+                }
+            }, "model");
+            thread.start();
+
+        }
+
+    }
+
+    public void togglePlayer() {
+        runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                try {
-                    game.chooseCup(index);
-                    updateDisplay();
-                    do {
-                        game.getNextCup();
-                        game.settleCup();
-                        updateDisplay();
-                        // until all the beads are gone
-                    } while (game.getBeadsInHand() > 0);
-                    game.endTurn();
-                    updateDisplay();
-                } catch (InterruptedException e) {
-                    Toast.makeText(GameActivity.this,"A Process Was Interrupted", Toast.LENGTH_LONG).show();
+                if(game.getPlayer()) {
+                    mCupText0.setTextColor(Color.RED);
+                    mCupText7.setTextColor(Color.BLACK);
+                    mCupButton1.setVisibility(View.VISIBLE);
+                    mCupButton2.setVisibility(View.VISIBLE);
+                    mCupButton3.setVisibility(View.VISIBLE);
+                    mCupButton4.setVisibility(View.VISIBLE);
+                    mCupButton5.setVisibility(View.VISIBLE);
+                    mCupButton6.setVisibility(View.VISIBLE);
+                    mCupButton8.setVisibility(View.INVISIBLE);
+                    mCupButton9.setVisibility(View.INVISIBLE);
+                    mCupButton10.setVisibility(View.INVISIBLE);
+                    mCupButton11.setVisibility(View.INVISIBLE);
+                    mCupButton12.setVisibility(View.INVISIBLE);
+                    mCupButton13.setVisibility(View.INVISIBLE);
+                } else {
+                    mCupText0.setTextColor(Color.BLACK);
+                    mCupText7.setTextColor(Color.RED);
+                    mCupButton8.setVisibility(View.VISIBLE);
+                    mCupButton9.setVisibility(View.VISIBLE);
+                    mCupButton10.setVisibility(View.VISIBLE);
+                    mCupButton11.setVisibility(View.VISIBLE);
+                    mCupButton12.setVisibility(View.VISIBLE);
+                    mCupButton13.setVisibility(View.VISIBLE);
+                    mCupButton1.setVisibility(View.INVISIBLE);
+                    mCupButton2.setVisibility(View.INVISIBLE);
+                    mCupButton3.setVisibility(View.INVISIBLE);
+                    mCupButton4.setVisibility(View.INVISIBLE);
+                    mCupButton5.setVisibility(View.INVISIBLE);
+                    mCupButton6.setVisibility(View.INVISIBLE);
                 }
-
             }
         });
-        thread.start();
-
 
     }
 

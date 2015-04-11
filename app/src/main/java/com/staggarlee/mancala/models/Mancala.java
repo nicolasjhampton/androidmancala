@@ -4,9 +4,6 @@ package com.staggarlee.mancala.models;
  * Created by nicolas on 4/9/15.
  */
 
-import com.staggarlee.mancala.ui.GameActivity;
-
-import java.util.List;
 import java.util.List;
 
 public class Mancala {
@@ -14,14 +11,14 @@ public class Mancala {
     // member variables
     private CupBoard mBoard;
     private int mIndex;
-    private int mBeads;
+    private int mBeadsInHand;
     private Cup mCup;
     private boolean mPlayer;
 
     // constructor
     public Mancala() {
         mIndex = 1;
-        mBeads = 0;
+        mBeadsInHand = 0;
         mCup = new Cup(0);
         mBoard = new CupBoard();
         mPlayer = true;
@@ -33,7 +30,7 @@ public class Mancala {
     }
 
     public int getBeadsInHand() {
-        return mBeads;
+        return mBeadsInHand;
     }
 
     public boolean getPlayer() {
@@ -42,7 +39,7 @@ public class Mancala {
 
     // switch the player currently accessing the game
     public void switchPlayer() {
-        mPlayer = !mPlayer;
+        this.mPlayer = !mPlayer;
     }
 
 
@@ -69,11 +66,12 @@ public class Mancala {
         } */
 
         // get the cup
+        mIndex = index;
         mCup = mBoard.getCup(mIndex);
         // take the beads from the current cup
         //Home check depreciated after android release
         // if(!mCup.isHome()) {
-            mBeads = mCup.takeBeads();
+            mBeadsInHand = mCup.takeBeads();
         //}
     }
 
@@ -97,7 +95,7 @@ public class Mancala {
             // do nothing and skip the home
         } else {
             // if this is your last bead
-            if(mBeads == 1 &&
+            if(mBeadsInHand == 1 &&
                     // AND there's beads already in the cup
                     mCup.getBeads() >= 1 &&
                     // AND this isn't a home cup
@@ -106,13 +104,13 @@ public class Mancala {
                     mPlayer == mCup.isFirstPlayer()) {
                 // take any beads in the cup if it's the last cup
                 // and continue
-                mBeads += mCup.takeBeads();
+                mBeadsInHand += mCup.takeBeads();
                 // printResult();
             } else {
 
-                if(mBeads > 0) {
+                if(mBeadsInHand > 0) {
                     // else take a bead from your hand
-                    mBeads--;
+                    mBeadsInHand--;
                     // and put it in the cup
                     mCup.addBeads(1);
                 }
@@ -150,17 +148,19 @@ public class Mancala {
 
             }
             // take the beads from the opposite side of the board
-            int beads = getBeadsInHand();
+            mBeadsInHand = mCup.takeBeads();
             // go back to the cup we ended on
             mCup = mBoard.getCup(mIndex);
             // put them in the cup we ended on
-            mCup.addBeads(beads);
+            mCup.addBeads(mBeadsInHand);
             // GameActivity.updateDisplay();
+            mBeadsInHand = 0;
         }
         switchPlayer();
     }
-
+    /*
     // Combines steps 1 through 4 into a single turn
+    // moved to GameActivity class after android development
     public void makeMove(int index) throws InterruptedException {
         // ^^ Code commented out in preparation for making this
         //    a "makeMove" function.
@@ -179,6 +179,7 @@ public class Mancala {
             endTurn();
         }
     }
+    */
 
 
     public int winOrLose() {
